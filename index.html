@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thérāpi | Rastreamento Total Express</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <img src="assets/logov.png" class="logo" alt="Thérāpi" />
+    <h1>Consulta de Entrega</h1>
+  </header>
+
+  <main>
+    <form id="consultaForm">
+      <label for="valorBusca">Digite o CPF ou Nota Fiscal:</label>
+      <input id="valorBusca" type="text" placeholder="Ex: 12345678900 ou 323348" required />
+      <button type="submit">Consultar</button>
+    </form>
+
+    <section id="resultado" class="hidden">
+      <h2>Resultado da Consulta</h2>
+      <div id="detalhes"></div>
+    </section>
+  </main>
+
+  <footer>© 2025 Thérāpi | Integração Total Express</footer>
+  <script src="script.js"></script>
+</body>
+</html>
