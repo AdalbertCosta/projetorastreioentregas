@@ -11,16 +11,18 @@
     <header class="hero">
       <img src="assets/logov.png" alt="Thérāpi" class="logo" />
       <h1>Consulta de Entrega</h1>
+      <p>Consulte a previsão de entrega informando apenas o número da Nota Fiscal.</p>
     </header>
 
     <main class="card">
       <form id="consultaForm">
-        <label for="valorBusca">Digite o CPF ou Nota Fiscal:</label>
-        <input id="valorBusca" type="text" placeholder="Ex: 12345678900 ou 323348" required />
+        <label for="valorBusca">Número da Nota Fiscal:</label>
+        <input id="valorBusca" type="text" placeholder="Ex: 323348" required />
         <button type="submit">Consultar</button>
       </form>
+
       <div id="resultado" class="hidden">
-        <h2>Resultado</h2>
+        <h2>Resultado da Consulta</h2>
         <div id="detalhes"></div>
       </div>
     </main>
