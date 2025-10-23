@@ -1,20 +1,24 @@
 // netlify/functions/totalexpress.js
-import fetch from "node-fetch";
 
 export async function handler(event) {
   try {
-    const body = JSON.parse(event.body);
-
-    // 🔐 Token via variável de ambiente (definida no painel Netlify)
     const token = process.env.TOTAL_BEARER_TOKEN;
-
     if (!token) {
       return {
         statusCode: 500,
-        body: JSON.stringify({ message: "Token da Total Express não configurado no ambiente." }),
+        body: JSON.stringify({ message: "TOTAL_BEARER_TOKEN ausente no ambiente Netlify." }),
       };
     }
 
+    const body = JSON.parse(event.body || "{}");
+    if (!body.remetenteId || !body.nfiscal) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: "Informe 'remetenteId' e 'nfiscal' no corpo da requisição." }),
+      };
+    }
+
+    // 🔗 Faz a requisição direta à API da Total Express (usando fetch nativo)
     const response = await fetch("https://edi.totalexpress.com.br/previsao_entrega_atualizada.php", {
       method: "POST",
       headers: {
@@ -24,22 +28,22 @@ export async function handler(event) {
       body: JSON.stringify(body),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text };
+    }
 
-    // ✅ Retorna resposta da API
     return {
       statusCode: response.status,
       body: JSON.stringify(data),
     };
-
   } catch (error) {
-    console.error("Erro Total Express:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        message: "Erro interno ao consultar Total Express.",
-        error: error.message,
-      }),
+      body: JSON.stringify({ message: "Erro interno ao consultar Total Express", error: error.message }),
     };
   }
 }
