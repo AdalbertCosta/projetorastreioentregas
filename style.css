@@ -1,67 +1,121 @@
-body {
-  font-family: "Segoe UI", sans-serif;
-  background: #f5f7fa;
-  margin: 0;
-  padding: 0;
-  color: #333;
+:root {
+  --cor-primaria: #095a7f;
+  --cor-secundaria: #12ac68;
+  --cor-fundo: #f8fafc;
+  --cor-texto: #1e293b;
+  --cor-cinza: #6b7280;
 }
 
-.topbar {
-  background: #095a7f;
-  color: #fff;
-  padding: 1rem;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 2rem;
+}
+
+.hero {
   text-align: center;
+  margin-bottom: 2rem;
 }
 
 .logo {
-  height: 50px;
-  display: block;
-  margin: 0 auto 0.5rem;
+  height: 90px;
+  margin-bottom: 1rem;
 }
 
-main {
-  max-width: 600px;
-  margin: 2rem auto;
-  background: white;
+h1 {
+  font-size: 1.8rem;
+  color: var(--cor-primaria);
+  font-weight: 600;
+}
+
+.card {
+  background: #fff;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
 }
 
 label {
   display: block;
   margin-bottom: 0.5rem;
-  font-weight: 600;
+  color: var(--cor-cinza);
+  font-weight: 500;
+  font-size: 0.95rem;
 }
 
 input {
   width: 100%;
   padding: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
   margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px rgba(9, 90, 127, 0.15);
+  outline: none;
 }
 
 button {
-  background: #095a7f;
-  color: #fff;
+  background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria));
+  color: white;
   border: none;
-  padding: 0.8rem 1.2rem;
-  border-radius: 6px;
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
 }
 
 button:hover {
-  background: #12ac68;
+  transform: scale(1.04);
+  background: linear-gradient(135deg, var(--cor-secundaria), var(--cor-primaria));
 }
 
 .hidden {
   display: none;
 }
 
+#resultado {
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+#detalhes p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: var(--cor-texto);
+}
+
 footer {
   text-align: center;
-  margin-top: 2rem;
-  color: #555;
+  padding: 1.5rem 0;
+  color: var(--cor-cinza);
   font-size: 0.9rem;
 }
