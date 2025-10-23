@@ -1,49 +1,80 @@
 // netlify/functions/totalexpress.js
+// ===============================================
+// 🔐 Thérāpi | Integração Total Express
+// Autenticação ICS + Consulta Previsão de Entrega
+// ===============================================
 
 export async function handler(event) {
   try {
-    const token = process.env.TOTAL_BEARER_TOKEN;
-    if (!token) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ message: "TOTAL_BEARER_TOKEN ausente no ambiente Netlify." }),
-      };
-    }
-
+    // ====== Parse da requisição ======
     const body = JSON.parse(event.body || "{}");
-    if (!body.remetenteId || !body.nfiscal) {
+    const nfiscal = Array.isArray(body.nfiscal) ? body.nfiscal[0] : body.nfiscal;
+
+    if (!nfiscal) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ message: "Informe 'remetenteId' e 'nfiscal' no corpo da requisição." }),
+        body: JSON.stringify({ message: "Informe o número da Nota Fiscal." }),
       };
     }
 
-    // 🔗 Faz a requisição direta à API da Total Express (usando fetch nativo)
-    const response = await fetch("https://edi.totalexpress.com.br/previsao_entrega_atualizada.php", {
+    // ====== Etapa 1: Autenticação ======
+    const loginResponse = await fetch("https://edi.totalexpress.com.br/auth.php", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        usuario: process.env.TOTAL_USER,
+        senha: process.env.TOTAL_PASS,
+      }),
     });
 
-    const text = await response.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { raw: text };
+    const loginData = await loginResponse.json();
+
+    if (!loginData.token) {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({
+          message: "Falha na autenticação ICS (verifique TOTAL_USER e TOTAL_PASS).",
+          detalhes: loginData,
+        }),
+      };
     }
 
+    // ====== Etapa 2: Consulta Previsão ======
+    const consultaResponse = await fetch(
+      "https://edi.totalexpress.com.br/previsao_entrega_atualizada.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${loginData.token}`,
+        },
+        body: JSON.stringify({
+          remetenteId: "7371",
+          nfiscal: [nfiscal],
+        }),
+      }
+    );
+
+    const rawText = await consultaResponse.text();
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      data = { raw: rawText };
+    }
+
+    // ====== Retorno ======
     return {
-      statusCode: response.status,
+      statusCode: consultaResponse.status,
       body: JSON.stringify(data),
     };
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ message: "Erro interno ao consultar Total Express", error: error.message }),
+      body: JSON.stringify({
+        message: "Erro interno ao consultar Total Express",
+        error: error.message,
+      }),
     };
   }
 }
