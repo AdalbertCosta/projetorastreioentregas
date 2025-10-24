@@ -1,4 +1,7 @@
 // netlify/functions/totalexpress.js
+// ===============================================
+// 🔐 Thérāpi | Integração Total Express (Diagnóstico completo)
+// ===============================================
 
 export async function handler(event) {
   try {
@@ -12,7 +15,7 @@ export async function handler(event) {
       };
     }
 
-    // === Autenticação ===
+    // === 1. Login ICS ===
     const loginResponse = await fetch("https://edi.totalexpress.com.br/auth.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -22,7 +25,15 @@ export async function handler(event) {
       }),
     });
 
-    const loginData = await loginResponse.json();
+    const loginText = await loginResponse.text();
+    let loginData;
+    try {
+      loginData = JSON.parse(loginText);
+    } catch {
+      loginData = { raw: loginText };
+    }
+
+    // Se o login falhou, retorna o que veio
     if (!loginData.token) {
       return {
         statusCode: 401,
@@ -33,7 +44,7 @@ export async function handler(event) {
       };
     }
 
-    // === Consulta ===
+    // === 2. Consulta Previsão ===
     const consultaResponse = await fetch(
       "https://edi.totalexpress.com.br/previsao_entrega_atualizada.php",
       {
@@ -49,13 +60,12 @@ export async function handler(event) {
       }
     );
 
-    // 🧠 Novo tratamento: tentar ler como JSON, e se falhar, como texto
-    const textResponse = await consultaResponse.text();
+    const consultaText = await consultaResponse.text();
     let data;
     try {
-      data = JSON.parse(textResponse);
+      data = JSON.parse(consultaText);
     } catch {
-      data = { raw: textResponse };
+      data = { raw: consultaText };
     }
 
     return {
@@ -68,6 +78,7 @@ export async function handler(event) {
       body: JSON.stringify({
         message: "Erro interno ao consultar Total Express",
         error: error.message,
+        stack: error.stack,
       }),
     };
   }
