@@ -1,12 +1,7 @@
 // netlify/functions/totalexpress.js
-// ===============================================
-// 🔐 Thérāpi | Integração Total Express
-// Autenticação ICS + Consulta Previsão de Entrega
-// ===============================================
 
 export async function handler(event) {
   try {
-    // ====== Parse da requisição ======
     const body = JSON.parse(event.body || "{}");
     const nfiscal = Array.isArray(body.nfiscal) ? body.nfiscal[0] : body.nfiscal;
 
@@ -17,7 +12,7 @@ export async function handler(event) {
       };
     }
 
-    // ====== Etapa 1: Autenticação ======
+    // === Autenticação ===
     const loginResponse = await fetch("https://edi.totalexpress.com.br/auth.php", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -28,7 +23,6 @@ export async function handler(event) {
     });
 
     const loginData = await loginResponse.json();
-
     if (!loginData.token) {
       return {
         statusCode: 401,
@@ -39,7 +33,7 @@ export async function handler(event) {
       };
     }
 
-    // ====== Etapa 2: Consulta Previsão ======
+    // === Consulta ===
     const consultaResponse = await fetch(
       "https://edi.totalexpress.com.br/previsao_entrega_atualizada.php",
       {
@@ -55,15 +49,15 @@ export async function handler(event) {
       }
     );
 
-    const rawText = await consultaResponse.text();
+    // 🧠 Novo tratamento: tentar ler como JSON, e se falhar, como texto
+    const textResponse = await consultaResponse.text();
     let data;
     try {
-      data = JSON.parse(rawText);
+      data = JSON.parse(textResponse);
     } catch {
-      data = { raw: rawText };
+      data = { raw: textResponse };
     }
 
-    // ====== Retorno ======
     return {
       statusCode: consultaResponse.status,
       body: JSON.stringify(data),
